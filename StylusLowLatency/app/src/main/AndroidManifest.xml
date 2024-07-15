@@ -35,6 +35,16 @@
       * android:turnScreenOn="true"
       * android:exported="true"
     -->
+
+    <activity android:name=".ui.HomeActivity"
+        android:exported="true"
+        >
+      <intent-filter>
+        <action android:name="android.intent.action.MAIN" />
+        <category android:name="android.intent.category.LAUNCHER" />
+      </intent-filter>
+    </activity>
+
     <activity
         android:name=".ui.SampleInkViewActivity"
         android:exported="true"
@@ -43,11 +53,6 @@
         android:label="LowLatency Sample"
         android:configChanges="orientation|keyboardHidden|screenSize|keyboard|navigation|screenLayout|uiMode|smallestScreenSize"
         >
-      <intent-filter>
-        <action android:name="android.intent.action.MAIN" />
-        <category android:name="android.intent.category.LAUNCHER" />
-      </intent-filter>
-
       <!-- required for Note role -->
       <intent-filter>
         <action android:name="android.intent.action.CREATE_NOTE" />

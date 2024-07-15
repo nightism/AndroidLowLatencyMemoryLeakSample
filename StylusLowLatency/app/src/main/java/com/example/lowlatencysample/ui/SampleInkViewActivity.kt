@@ -301,6 +301,11 @@ class SampleInkViewActivity : ComponentActivity() {
       modifier = modifier,
       verticalAlignment = Alignment.CenterVertically
     ) {
+      Button(onClick = {
+        finish()
+      }) {
+        Text("Back to Home Activity")
+      }
       if (showLineStyles.value) {
         Button(onClick = {
           val options = BitmapFactory.Options().apply {
