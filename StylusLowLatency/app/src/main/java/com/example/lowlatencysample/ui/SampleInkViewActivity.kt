@@ -27,7 +27,6 @@ import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
 import android.util.Log
-import android.util.TypedValue
 import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
@@ -61,6 +60,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
+import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsCompat
 import com.example.lowlatencysample.R
 import com.example.lowlatencysample.brush.BitmapBrushShader
 import com.example.lowlatencysample.brush.Brush
@@ -305,6 +306,23 @@ class SampleInkViewActivity : ComponentActivity() {
         finish()
       }) {
         Text("Back to Home Activity")
+      }
+      Button(onClick = {
+        val windowInsetsController =
+          WindowCompat.getInsetsController(window, window.decorView)
+          windowInsetsController.show(WindowInsetsCompat.Type.systemBars())
+      }) {
+        Text("Show Nav Bar")
+      }
+      Button(onClick = {
+        val windowInsetsController =
+          WindowCompat.getInsetsController(window, window.decorView)
+          windowInsetsController.show(
+            WindowInsetsCompat.Type.statusBars() or WindowInsetsCompat.Type.captionBar()
+          )
+          windowInsetsController.hide(WindowInsetsCompat.Type.navigationBars())
+      }) {
+        Text("Hide Nav Bar")
       }
       if (showLineStyles.value) {
         Button(onClick = {
