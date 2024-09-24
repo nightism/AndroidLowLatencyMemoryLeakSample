@@ -16,7 +16,6 @@
 
 package com.example.lowlatencysample.ui
 
-import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
@@ -68,6 +67,8 @@ class CanvasLowLatencyRenderer(
     private var currentStrokeColor = Color.RED
     private var previousStrokeColor = Color.YELLOW
 
+    private val mPaint = Paint()
+
     override fun onDrawFrontBufferedLayer(
         canvas: Canvas,
         bufferWidth: Int,
@@ -95,11 +96,6 @@ class CanvasLowLatencyRenderer(
             val rw = inflatedDamagedArea.width()
             val rh = inflatedDamagedArea.height()
 
-            // 1. create a Bitmap of the size of the damaged area
-            val tempCanvasBitmap = Bitmap.createBitmap(damagedArea.width(), damagedArea.height(), Bitmap.Config.ARGB_8888)
-            // 2. setup a canvas with this bitmap
-            val damagedCanvas = Canvas(tempCanvasBitmap)
-
             val previousStrokesColor = if (drawingManager.isDebugColorEnabled) {
                 previousStrokeColor
             } else {
@@ -108,10 +104,14 @@ class CanvasLowLatencyRenderer(
             // 3. prepare the buffer
             val damagedRect = Rect(0, 0, inflatedDamagedArea.width(), inflatedDamagedArea.height())
 
-            damagedCanvas.drawRect(damagedRect, Paint().apply {
-                this.color = Color.BLACK
-                this.style = Paint.Style.FILL
-            })
+            // Redraw the background over the damaged area.
+            // Alternative implementations can clear this area by leveraging BlendMode.CLEAR
+            // if it was previously transparent
+            canvas.drawRect(damagedRect,
+                mPaint.apply {
+                    color = Color.BLACK
+                }
+            )
 
             // TODO: when one line is like a U, if the pointer is inside, sub lines may be created lead to
             // TODO: connection between the two vertical lines of the U.
@@ -124,14 +124,8 @@ class CanvasLowLatencyRenderer(
                 if (sublines.isNotEmpty()) {
                     for(subline in sublines) {
 
-                        // line coordinates need to be relative to the damaged area
-                        subline[Brush.X1_INDEX] -= damagedArea.left.toFloat()
-                        subline[Brush.Y1_INDEX] -= damagedArea.top.toFloat()
-                        subline[Brush.X2_INDEX] -= damagedArea.left.toFloat()
-                        subline[Brush.Y2_INDEX] -= damagedArea.top.toFloat()
-
                         if(subline[Brush.EVENT_TYPE] == Brush.IS_USER_EVENT) {
-                            brushRenderer.render(damagedCanvas, subline, previousStrokesColor)
+                            brushRenderer.render(canvas, subline, previousStrokesColor)
                         }
                     }
                 }
@@ -149,22 +143,14 @@ class CanvasLowLatencyRenderer(
             }
             if (currentSublines.isNotEmpty()) {
                 for(subline in currentSublines) {
-                    // line coordinates need to be relative to the damaged area
-                    subline[Brush.X1_INDEX] -= damagedArea.left.toFloat()
-                    subline[Brush.Y1_INDEX] -= damagedArea.top.toFloat()
-                    subline[Brush.X2_INDEX] -= damagedArea.left.toFloat()
-                    subline[Brush.Y2_INDEX] -= damagedArea.top.toFloat()
 
                     brushRenderer.render(
-                        damagedCanvas,
+                        canvas,
                         subline,
                         currentLineColor
                     )
                 }
             }
-
-            // 5. copy the damaged Bitmap to the actual canvas
-            canvas.drawBitmap(tempCanvasBitmap, null, damagedArea, null)
 
             // we want to keep only the user event for the current line as well.
             if (param[Brush.EVENT_TYPE] == Brush.IS_USER_EVENT) {
