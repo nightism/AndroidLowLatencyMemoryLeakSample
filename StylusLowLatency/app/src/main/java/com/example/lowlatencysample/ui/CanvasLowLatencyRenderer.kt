@@ -16,6 +16,7 @@
 
 package com.example.lowlatencysample.ui
 
+import android.annotation.SuppressLint
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
@@ -192,6 +193,7 @@ class CanvasLowLatencyRenderer(
         }
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     override val onTouchListener = View.OnTouchListener { view, event ->
         motionEventPredictor?.record(event)
 
